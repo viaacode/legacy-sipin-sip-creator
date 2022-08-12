@@ -26,6 +26,17 @@ class Sidecar:
         self.local_ids = {}
         for lid in self.root.findall("dc_identifier_localids/*"):
             self.local_ids[lid.tag] = lid.text
+        # XDCAM
+        self.type_viaa = self.root.findtext("type_viaa")
+        self.format = self.root.findtext("format")
+        self.sp_name = self.root.findtext("sp_name")
+        self.sp_id = self.root.findtext("sp_id")
+        self.digitization_date = self.root.findtext("digitization_date")
+        self.digitization_time = self.root.findtext("digitization_time")
+        self.digitization_note = self.root.findtext("digitization_note")
+        self.player_manufacturer = self.root.findtext("player_manufacturer")
+        self.player_serial_number = self.root.findtext("player_serial_number")
+        self.player_model = self.root.findtext("player_model")
 
     def calculate_original_filename(self) -> Optional[str]:
         """Calculate the original filename
@@ -44,3 +55,11 @@ class Sidecar:
             return self.dc_source
         else:
             return None
+
+    def is_xdcam(self) -> bool:
+        """Determines if it is XDCAM
+
+        Returns:
+            True if XDCAM.
+        """
+        return self.format == "XDCAM"
