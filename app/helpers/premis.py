@@ -258,7 +258,7 @@ class Object:
 
     Args:
         type: The object type.
-        object_identifiers: The object identifiers.
+        identifiers: The object identifiers.
         original_name: The original name.
         fixity: The fixity element.
         relationships: The relationships.
@@ -267,13 +267,13 @@ class Object:
     def __init__(
         self,
         type: ObjectType,
-        object_identifiers: List[ObjectIdentifier] = [],
+        identifiers: List[ObjectIdentifier] = [],
         original_name: str = None,
         fixity: str = None,
         relationships: List[Relationship] = [],
     ):
         self.type: ObjectType = type
-        self.object_identifiers = object_identifiers
+        self.identifiers = identifiers
         self.original_name = original_name
         self.fixity = fixity
         self.relationships = relationships
@@ -281,8 +281,8 @@ class Object:
     def add_relationship(self, relationship: Relationship):
         self.relationships.append(relationship)
 
-    def add_object_identifier(self, object_identifier: ObjectIdentifier):
-        self.object_identifiers.append(object_identifier)
+    def add_identifier(self, identifier: ObjectIdentifier):
+        self.identifiers.append(identifier)
 
     def to_element(self):
         """Returns the object node as an lxml element.
@@ -303,8 +303,8 @@ class Object:
             object_element.append(OriginalName(self.original_name).to_element())
 
         # Premis object identifiers
-        for object_identifier in self.object_identifiers:
-            object_element.append(object_identifier.to_element())
+        for identifier in self.identifiers:
+            object_element.append(identifier.to_element())
 
         # Premis fixity
         if self.fixity:

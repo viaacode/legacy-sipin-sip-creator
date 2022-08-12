@@ -421,21 +421,17 @@ class Bag:
         premis_element = Premis()
         # Premis object IE
         premis_object_element_ie = Object(ObjectType.IE)
-        premis_object_element_ie.add_object_identifier(
-            ObjectIdentifier("uuid", ie_uuid)
-        )
+        premis_object_element_ie.add_identifier(ObjectIdentifier("uuid", ie_uuid))
         # Premis identifiers
         # local_id
-        premis_object_element_ie.add_object_identifier(
+        premis_object_element_ie.add_identifier(
             ObjectIdentifier("local_id", self.sidecar.local_id)
         )
 
         # local_ids
         for type, value in self.sidecar.local_ids.items():
             if type not in ("bestandsnaam", "Bestandsnaam"):
-                premis_object_element_ie.add_object_identifier(
-                    ObjectIdentifier(type, value)
-                )
+                premis_object_element_ie.add_identifier(ObjectIdentifier(type, value))
         # Premis object IE relationship
         premis_object_element_ie_relationship = Relationship(
             RelationshipSubtype.REPRESENTED_BY, rep_uuid
