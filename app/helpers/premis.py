@@ -268,7 +268,7 @@ class Object:
         self,
         type: ObjectType,
         identifiers: List[ObjectIdentifier],
-        original_name: str = None,
+        original_name: OriginalName = None,
         fixity: Fixity = None,
         relationships: List[Relationship] = None,
     ):
@@ -300,7 +300,7 @@ class Object:
 
         # Premis original name
         if self.original_name:
-            object_element.append(OriginalName(self.original_name).to_element())
+            object_element.append(self.original_name.to_element())
 
         # Premis object identifiers
         for identifier in self.identifiers:

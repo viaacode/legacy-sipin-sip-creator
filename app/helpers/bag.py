@@ -31,6 +31,7 @@ from app.helpers.premis import (
     ObjectCategoryType,
     ObjectIdentifier,
     ObjectType,
+    OriginalName,
     Relationship,
     RelationshipSubtype,
     Premis,
@@ -512,7 +513,7 @@ class Bag:
         premis_object_element_file = Object(
             ObjectType.FILE,
             [ObjectIdentifier("uuid", file_uuid)],
-            original_name=original_name,
+            original_name=OriginalName(original_name),
             fixity=Fixity(self.sidecar.md5),
         )
 
