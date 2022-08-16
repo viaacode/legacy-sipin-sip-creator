@@ -33,6 +33,10 @@ from app.helpers.premis import (
     EventDetailInformation,
     EventIdentifier,
     Fixity,
+    LinkingAgentIdentifier,
+    LinkingAgentRole,
+    LinkingObjectIdentifier,
+    LinkingObjectRole,
     Object,
     ObjectIdentifier,
     ObjectType,
@@ -453,10 +457,14 @@ class Bag:
         # XDCAM
         if self.sidecar.is_xdcam():
 
+            # UUIDs
+            player_agent_uuid = generate_uuid()
+            premis_object_rep_uuid = generate_uuid()
+
             # Premis object representation
             premis_object_element_rep = Object(
                 ObjectType.REPRESENTATION,
-                identifiers=[ObjectIdentifier("uuid", generate_uuid())],
+                identifiers=[ObjectIdentifier("uuid", premis_object_rep_uuid)],
                 storages=[Storage("XDCAM")],
             )
 
@@ -469,6 +477,47 @@ class Bag:
                 f"{self.sidecar.digitization_date}T{self.sidecar.digitization_time}",
                 event_detail_informations=[
                     EventDetailInformation(self.sidecar.digitization_note)
+                ],
+                linking_agent_identifiers=[
+                    LinkingAgentIdentifier(
+                        "VIAA SP Agent ID",
+                        self.sidecar.sp_id,
+                        roles=[
+                            LinkingAgentRole(
+                                "implementer",
+                                value_uri="http://id.loc.gov/vocabulary/preservation/eventRelatedAgentRole/imp",
+                            ),
+                        ],
+                    ),
+                    LinkingAgentIdentifier(
+                        "UUID",
+                        player_agent_uuid,
+                        roles=[
+                            LinkingAgentRole("player"),
+                        ],
+                    ),
+                ],
+                linking_object_identifiers=[
+                    LinkingObjectIdentifier(
+                        "UUID",
+                        rep_uuid,
+                        roles=[
+                            LinkingObjectRole(
+                                "outcome",
+                                value_uri="http://id.loc.gov/vocabulary/preservation/eventRelatedObjectRole/out",
+                            ),
+                        ],
+                    ),
+                    LinkingObjectIdentifier(
+                        "UUID",
+                        premis_object_rep_uuid,
+                        roles=[
+                            LinkingObjectRole(
+                                "source",
+                                value_uri="http://id.loc.gov/vocabulary/preservation/eventRelatedObjectRole/out",
+                            ),
+                        ],
+                    ),
                 ],
             )
 
@@ -483,14 +532,14 @@ class Bag:
 
             premis_element.add_event(premis_agent_sp)
 
-            # Premis Agent type
+            # Premis Agent player
             premis_agent_type_extension = AgentExtension(
                 model=self.sidecar.player_model,
                 brand_name=self.sidecar.player_manufacturer,
                 serial_number=self.sidecar.player_serial_number,
             )
             premis_agent_type = PremisAgent(
-                [AgentIdentifier("UUID", generate_uuid())],
+                [AgentIdentifier("UUID", player_agent_uuid)],
                 type="player",
                 name=f"{self.sidecar.player_manufacturer} {self.sidecar.player_model}",
                 extension=premis_agent_type_extension,

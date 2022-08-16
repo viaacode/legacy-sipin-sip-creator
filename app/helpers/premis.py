@@ -513,6 +513,160 @@ class Agent:
         return agent_element
 
 
+class LinkingAgentRole:
+    """Class representing a linkingAgentRole node.
+
+    This is a part of a linkingAgentIdentifier
+
+    Args:
+        role: The role.
+        value_uri: The value URI."""
+
+    def __init__(self, role: str, value_uri: str = ""):
+        self.role = role
+        self.value_uri = value_uri
+
+    def to_element(self):
+        """Returns the linkingAgentRole node as an lxml element.
+
+        Returns:
+            The linkingAgentRole element."""
+
+        attributes = {}
+        if self.value_uri:
+            attributes["valueURI"] = self.value_uri
+
+        # Linking agent role
+        linking_agent_role_element = etree.Element(
+            qname_text(NSMAP, "premis", "linkingAgentRole"), attrib=attributes
+        )
+        linking_agent_role_element.text = self.role
+
+        return linking_agent_role_element
+
+
+class LinkingAgentIdentifier:
+    """Class representing a linkingAgentIdentifier node.
+
+    Args:
+        type: The type of the linking agent identifier.
+        value: The value of the linking agent identifier.
+        roles: The roles of the linking agent identifier."""
+
+    def __init__(
+        self, type: str, value: str, roles: Optional[List[LinkingAgentRole]] = None
+    ):
+        self.type = type
+        self.value = value
+        self.roles = roles if roles else []
+
+    def add_role(self, role: LinkingAgentRole):
+        self.roles.append(role)
+
+    def to_element(self):
+        """Returns the LinkingAgentIdentifier node as an lxml element.
+
+        Returns:
+            The LinkingAgentIdentifier element."""
+
+        # Linking agent identifier
+        linking_agent_identifier_element = etree.Element(
+            qname_text(NSMAP, "premis", "linkingAgentIdentifier")
+        )
+        # Linking agent identifier type
+        etree.SubElement(
+            linking_agent_identifier_element,
+            qname_text(NSMAP, "premis", "linkingAgentIdentifierType"),
+        ).text = self.type
+        # Linking agent identifier value
+        etree.SubElement(
+            linking_agent_identifier_element,
+            qname_text(NSMAP, "premis", "linkingAgentIdentifierValue"),
+        ).text = self.value
+        # linking agent identifier roles
+        for role in self.roles:
+            linking_agent_identifier_element.append(role.to_element())
+
+        return linking_agent_identifier_element
+
+
+class LinkingObjectRole:
+    """Class representing a linkingObjectRole node.
+
+    This is a part of a linkingObjectIdentifier
+
+    Args:
+        role: The role.
+        value_uri: The value URI."""
+
+    def __init__(self, role: str, value_uri: str = ""):
+        self.role = role
+        self.value_uri = value_uri
+
+    def to_element(self):
+        """Returns the linkingObjectRole node as an lxml element.
+
+        Returns:
+            The linkingObjectRole element."""
+
+        attributes = {}
+        if self.value_uri:
+            attributes["valueURI"] = self.value_uri
+
+        # Linking agent role
+        linking_agent_role_element = etree.Element(
+            qname_text(NSMAP, "premis", "linkingObjectRole"), attrib=attributes
+        )
+        linking_agent_role_element.text = self.role
+
+        return linking_agent_role_element
+
+
+class LinkingObjectIdentifier:
+    """Class representing a linkingObjectIdentifier node.
+
+    Args:
+        type: The type of the linking object identifier.
+        value: The value of the linking object identifier.
+        rol: The roles of the linking object identifier."""
+
+    def __init__(
+        self, type: str, value: str, roles: Optional[List[LinkingObjectRole]] = None
+    ):
+        self.type = type
+        self.value = value
+        self.roles = roles if roles else []
+
+    def add_role(self, role: LinkingObjectRole):
+        self.roles.append(role)
+
+    def to_element(self):
+        """Returns the linkingObjectIdentifier node as an lxml element.
+
+        Returns:
+            The linkingObjectIdentifier element."""
+
+        # Linking object identifier
+        linking_object_identifier_element = etree.Element(
+            qname_text(NSMAP, "premis", "linkingObjectIdentifier")
+        )
+        # Linking object identifier type
+        etree.SubElement(
+            linking_object_identifier_element,
+            qname_text(NSMAP, "premis", "linkingObjectIdentifierType"),
+        ).text = self.type
+        # Linking object identifier value
+        etree.SubElement(
+            linking_object_identifier_element,
+            qname_text(NSMAP, "premis", "linkingObjectIdentifierValue"),
+        ).text = self.value
+        # linking object identifier roles
+        for role in self.roles:
+            linking_object_identifier_element.append(role.to_element())
+
+        return linking_object_identifier_element
+
+
 class EventIdentifier:
     """Class representing a eventIdentifier node.
 
@@ -588,6 +742,9 @@ class Event:
         type: The event type.
         date_time: The event datetime.
         note: The event note.
+        event_detail_informations: The event detail informations.
+        linking_agent_identifiers: The linking agent identifiers.
+        linking_object_identifiers: The linking object identifiers.
     """
 
     def __init__(
@@ -596,12 +753,20 @@ class Event:
         type: str,
         date_time: str,
         event_detail_informations: Optional[List[EventDetailInformation]] = None,
+        linking_agent_identifiers: Optional[List[LinkingAgentIdentifier]] = None,
+        linking_object_identifiers: Optional[List[LinkingObjectIdentifier]] = None,
     ):
         self.identifier = identifier
         self.type = type
         self.date_time = date_time
         self.event_detail_informations = (
             event_detail_informations if event_detail_informations else []
+        )
+        self.linking_agent_identifiers = (
+            linking_agent_identifiers if linking_agent_identifiers else []
+        )
+        self.linking_object_identifiers = (
+            linking_object_identifiers if linking_object_identifiers else []
         )
 
     def to_element(self):
@@ -631,6 +796,14 @@ class Event:
         # Premis event detail information (note)
         for event_detail_information in self.event_detail_informations:
             event_element.append(event_detail_information.to_element())
+
+        # The linking agent identifiers
+        for linking_agent_identifier in self.linking_agent_identifiers:
+            event_element.append(linking_agent_identifier.to_element())
+
+        # The linking object identifiers
+        for linking_object_identifier in self.linking_object_identifiers:
+            event_element.append(linking_object_identifier.to_element())
 
         return event_element
 
