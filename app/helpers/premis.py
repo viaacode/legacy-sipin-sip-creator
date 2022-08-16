@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from lxml import etree
 
@@ -193,7 +193,7 @@ class Fixity:
         md5: The md5.
     """
 
-    def __init__(self, md5: str = None):
+    def __init__(self, md5: str = ""):
         self.md5 = md5
 
     def to_element(self):
@@ -300,10 +300,10 @@ class Object:
         self,
         type: ObjectType,
         identifiers: List[ObjectIdentifier],
-        original_name: OriginalName = None,
-        fixity: Fixity = None,
-        relationships: List[Relationship] = None,
-        storages: List[Storage] = None,
+        original_name: Optional[OriginalName] = None,
+        fixity: Optional[Fixity] = None,
+        relationships: Optional[List[Relationship]] = None,
+        storages: Optional[List[Storage]] = None,
     ):
         self.type: ObjectType = type
         self.identifiers = identifiers
@@ -469,7 +469,7 @@ class Agent:
         identifiers: List[AgentIdentifier],
         type: str = "",
         name: str = "",
-        extension: AgentExtension = None,
+        extension: Optional[AgentExtension] = None,
     ):
         self.identifiers: List[AgentIdentifier] = identifiers
         self.type = type
@@ -595,7 +595,7 @@ class Event:
         identifier: EventIdentifier,
         type: str,
         date_time: str,
-        event_detail_informations: List[EventDetailInformation] = None,
+        event_detail_informations: Optional[List[EventDetailInformation]] = None,
     ):
         self.identifier = identifier
         self.type = type
