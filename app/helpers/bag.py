@@ -420,8 +420,9 @@ class Bag:
         # Premis
         premis_element = Premis()
         # Premis object IE
-        premis_object_element_ie = Object(ObjectType.IE)
-        premis_object_element_ie.add_identifier(ObjectIdentifier("uuid", ie_uuid))
+        premis_object_element_ie = Object(
+            ObjectType.IE, [ObjectIdentifier("uuid", ie_uuid)]
+        )
         # Premis identifiers
         # local_id
         premis_object_element_ie.add_identifier(

@@ -267,16 +267,16 @@ class Object:
     def __init__(
         self,
         type: ObjectType,
-        identifiers: List[ObjectIdentifier] = [],
+        identifiers: List[ObjectIdentifier],
         original_name: str = None,
         fixity: str = None,
-        relationships: List[Relationship] = [],
+        relationships: List[Relationship] = None,
     ):
         self.type: ObjectType = type
         self.identifiers = identifiers
         self.original_name = original_name
         self.fixity = fixity
-        self.relationships = relationships
+        self.relationships = relationships if relationships else []
 
     def add_relationship(self, relationship: Relationship):
         self.relationships.append(relationship)
