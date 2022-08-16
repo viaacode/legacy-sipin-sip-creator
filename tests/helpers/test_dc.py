@@ -55,7 +55,7 @@ def test_transform_uuid():
     # Act
     terms_element = DC.transform(
         medadata_path,
-        ie_uuid=etree.XSLT.strparam("865b767d-05f9-49d5-ba54-e9e82acec30d"),
+        ie_uuid=etree.XSLT.strparam("uuid-865b767d-05f9-49d5-ba54-e9e82acec30d"),
     )
     # Assert
     terms_xml = etree.tostring(terms_element, pretty_print=True).strip()

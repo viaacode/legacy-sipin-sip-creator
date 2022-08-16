@@ -7,7 +7,6 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
-from uuid import uuid4
 
 import bagit
 from lxml import etree
@@ -24,6 +23,7 @@ from app.helpers.mets import (
     File,
     FileGrpUse,
     FileType,
+    generate_uuid,
 )
 from app.helpers.premis import (
     Fixity,
@@ -390,9 +390,9 @@ class Bag:
             return
 
         # Relationships uuids
-        ie_uuid = str(uuid4())
-        rep_uuid = str(uuid4())
-        file_uuid = str(uuid4())
+        ie_uuid = generate_uuid()
+        rep_uuid = generate_uuid()
+        file_uuid = generate_uuid()
 
         # Root folder for bag
         root_folder = Path(essence_path.parent, essence_path.stem)
