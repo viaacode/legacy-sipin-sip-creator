@@ -26,14 +26,20 @@ from app.helpers.mets import (
     generate_uuid,
 )
 from app.helpers.premis import (
+    Agent as PremisAgent,
+    AgentExtension,
+    AgentIdentifier,
+    Event,
+    EventDetailInformation,
+    EventIdentifier,
     Fixity,
     Object,
-    ObjectCategoryType,
     ObjectIdentifier,
     ObjectType,
     OriginalName,
     Relationship,
     RelationshipSubtype,
+    Storage,
     Premis,
 )
 from app.helpers.sidecar import Sidecar
@@ -419,6 +425,8 @@ class Bag:
         metadata_pres_folder = metadata_folder.joinpath("preservation")
         metadata_pres_folder.mkdir(exist_ok=True)
         # Premis
+
+        # Premis object of type intellectualEntity
         premis_element = Premis()
         # Premis object IE
         premis_object_element_ie = Object(
@@ -442,6 +450,55 @@ class Bag:
 
         premis_element.add_object(premis_object_element_ie)
 
+        # XDCAM
+        if self.sidecar.is_xdcam():
+
+            # Premis object representation
+            premis_object_element_rep = Object(
+                ObjectType.REPRESENTATION,
+                identifiers=[ObjectIdentifier("uuid", generate_uuid())],
+                storages=[Storage("XDCAM")],
+            )
+
+            premis_element.add_object(premis_object_element_rep)
+
+            # Premis event
+            premis_event = Event(
+                EventIdentifier("UUID", generate_uuid()),
+                "DIGITIZATION",
+                f"{self.sidecar.digitization_date}T{self.sidecar.digitization_time}",
+                event_detail_informations=[
+                    EventDetailInformation(self.sidecar.digitization_note)
+                ],
+            )
+
+            premis_element.add_event(premis_event)
+
+            # Premis Agent SP
+            premis_agent_sp = PremisAgent(
+                [AgentIdentifier("VIAA SP Agent ID", self.sidecar.sp_id)],
+                type="SP Agent",
+                name=self.sidecar.sp_name,
+            )
+
+            premis_element.add_event(premis_agent_sp)
+
+            # Premis Agent type
+            premis_agent_type_extension = AgentExtension(
+                model=self.sidecar.player_model,
+                brand_name=self.sidecar.player_manufacturer,
+                serial_number=self.sidecar.player_serial_number,
+            )
+            premis_agent_type = PremisAgent(
+                [AgentIdentifier("UUID", generate_uuid())],
+                type="player",
+                name=f"{self.sidecar.player_manufacturer} {self.sidecar.player_model}",
+                extension=premis_agent_type_extension,
+            )
+
+            premis_element.add_agent(premis_agent_type)
+
+        # Write preservation data on IE level.
         etree.ElementTree(premis_element.to_element()).write(
             str(metadata_pres_folder.joinpath("premis.xml")),
             pretty_print=True,
