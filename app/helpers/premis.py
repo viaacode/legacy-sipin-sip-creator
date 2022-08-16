@@ -79,12 +79,12 @@ class ObjectIdentifier:
         object_identifier_element = etree.Element(
             qname_text(NSMAP, "premis", "objectIdentifier")
         )
-        # Premis related object identifier
+        # Premis object identifier type
         etree.SubElement(
             object_identifier_element,
             qname_text(NSMAP, "premis", "objectIdentifierType"),
         ).text = self.type
-        # Premis related object identifier value
+        # Premis object identifier value
         etree.SubElement(
             object_identifier_element,
             qname_text(NSMAP, "premis", "objectIdentifierValue"),
