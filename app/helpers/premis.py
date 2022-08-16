@@ -269,7 +269,7 @@ class Object:
         type: ObjectType,
         identifiers: List[ObjectIdentifier],
         original_name: str = None,
-        fixity: str = None,
+        fixity: Fixity = None,
         relationships: List[Relationship] = None,
     ):
         self.type: ObjectType = type
