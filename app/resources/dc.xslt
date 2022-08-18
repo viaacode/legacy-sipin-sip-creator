@@ -19,7 +19,7 @@
     <xsl:template name="ie_uuid">
         <xsl:if test="$ie_uuid !=''">
             <xsl:element name="dcterms:identifier">
-                <xsl:value-of select="concat('uuid-', $ie_uuid)" />
+                <xsl:value-of select="$ie_uuid" />
             </xsl:element>
         </xsl:if>
     </xsl:template>

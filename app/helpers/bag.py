@@ -7,7 +7,6 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
-from uuid import uuid4
 
 import bagit
 from lxml import etree
@@ -24,15 +23,27 @@ from app.helpers.mets import (
     File,
     FileGrpUse,
     FileType,
+    generate_uuid,
 )
 from app.helpers.premis import (
+    Agent as PremisAgent,
+    AgentExtension,
+    AgentIdentifier,
+    Event,
+    EventDetailInformation,
+    EventIdentifier,
     Fixity,
+    LinkingAgentIdentifier,
+    LinkingAgentRole,
+    LinkingObjectIdentifier,
+    LinkingObjectRole,
     Object,
-    ObjectCategoryType,
     ObjectIdentifier,
     ObjectType,
+    OriginalName,
     Relationship,
     RelationshipSubtype,
+    Storage,
     Premis,
 )
 from app.helpers.sidecar import Sidecar
@@ -390,9 +401,9 @@ class Bag:
             return
 
         # Relationships uuids
-        ie_uuid = str(uuid4())
-        rep_uuid = str(uuid4())
-        file_uuid = str(uuid4())
+        ie_uuid = generate_uuid()
+        rep_uuid = generate_uuid()
+        file_uuid = generate_uuid()
 
         # Root folder for bag
         root_folder = Path(essence_path.parent, essence_path.stem)
@@ -418,24 +429,23 @@ class Bag:
         metadata_pres_folder = metadata_folder.joinpath("preservation")
         metadata_pres_folder.mkdir(exist_ok=True)
         # Premis
+
+        # Premis object of type intellectualEntity
         premis_element = Premis()
         # Premis object IE
-        premis_object_element_ie = Object(ObjectType.IE)
-        premis_object_element_ie.add_object_identifier(
-            ObjectIdentifier("uuid", ie_uuid)
+        premis_object_element_ie = Object(
+            ObjectType.IE, [ObjectIdentifier("uuid", ie_uuid)]
         )
         # Premis identifiers
         # local_id
-        premis_object_element_ie.add_object_identifier(
+        premis_object_element_ie.add_identifier(
             ObjectIdentifier("local_id", self.sidecar.local_id)
         )
 
         # local_ids
         for type, value in self.sidecar.local_ids.items():
             if type not in ("bestandsnaam", "Bestandsnaam"):
-                premis_object_element_ie.add_object_identifier(
-                    ObjectIdentifier(type, value)
-                )
+                premis_object_element_ie.add_identifier(ObjectIdentifier(type, value))
         # Premis object IE relationship
         premis_object_element_ie_relationship = Relationship(
             RelationshipSubtype.REPRESENTED_BY, rep_uuid
@@ -444,6 +454,100 @@ class Bag:
 
         premis_element.add_object(premis_object_element_ie)
 
+        # XDCAM
+        if self.sidecar.is_xdcam():
+
+            # UUIDs
+            player_agent_uuid = generate_uuid()
+            premis_object_rep_uuid = generate_uuid()
+
+            # Premis object representation
+            premis_object_element_rep = Object(
+                ObjectType.REPRESENTATION,
+                identifiers=[ObjectIdentifier("uuid", premis_object_rep_uuid)],
+                storages=[Storage("XDCAM")],
+            )
+
+            premis_element.add_object(premis_object_element_rep)
+
+            # Premis event
+            premis_event = Event(
+                EventIdentifier("UUID", generate_uuid()),
+                "DIGITIZATION",
+                f"{self.sidecar.digitization_date}T{self.sidecar.digitization_time}",
+                event_detail_informations=[
+                    EventDetailInformation(self.sidecar.digitization_note)
+                ],
+                linking_agent_identifiers=[
+                    LinkingAgentIdentifier(
+                        "VIAA SP Agent ID",
+                        self.sidecar.sp_id,
+                        roles=[
+                            LinkingAgentRole(
+                                "implementer",
+                                value_uri="http://id.loc.gov/vocabulary/preservation/eventRelatedAgentRole/imp",
+                            ),
+                        ],
+                    ),
+                    LinkingAgentIdentifier(
+                        "UUID",
+                        player_agent_uuid,
+                        roles=[
+                            LinkingAgentRole("player"),
+                        ],
+                    ),
+                ],
+                linking_object_identifiers=[
+                    LinkingObjectIdentifier(
+                        "UUID",
+                        rep_uuid,
+                        roles=[
+                            LinkingObjectRole(
+                                "outcome",
+                                value_uri="http://id.loc.gov/vocabulary/preservation/eventRelatedObjectRole/out",
+                            ),
+                        ],
+                    ),
+                    LinkingObjectIdentifier(
+                        "UUID",
+                        premis_object_rep_uuid,
+                        roles=[
+                            LinkingObjectRole(
+                                "source",
+                                value_uri="http://id.loc.gov/vocabulary/preservation/eventRelatedObjectRole/out",
+                            ),
+                        ],
+                    ),
+                ],
+            )
+
+            premis_element.add_event(premis_event)
+
+            # Premis Agent SP
+            premis_agent_sp = PremisAgent(
+                [AgentIdentifier("VIAA SP Agent ID", self.sidecar.sp_id)],
+                type="SP Agent",
+                name=self.sidecar.sp_name,
+            )
+
+            premis_element.add_event(premis_agent_sp)
+
+            # Premis Agent player
+            premis_agent_type_extension = AgentExtension(
+                model=self.sidecar.player_model,
+                brand_name=self.sidecar.player_manufacturer,
+                serial_number=self.sidecar.player_serial_number,
+            )
+            premis_agent_type = PremisAgent(
+                [AgentIdentifier("UUID", player_agent_uuid)],
+                type="player",
+                name=f"{self.sidecar.player_manufacturer} {self.sidecar.player_model}",
+                extension=premis_agent_type_extension,
+            )
+
+            premis_element.add_agent(premis_agent_type)
+
+        # Write preservation data on IE level.
         etree.ElementTree(premis_element.to_element()).write(
             str(metadata_pres_folder.joinpath("premis.xml")),
             pretty_print=True,
@@ -515,7 +619,7 @@ class Bag:
         premis_object_element_file = Object(
             ObjectType.FILE,
             [ObjectIdentifier("uuid", file_uuid)],
-            original_name=original_name,
+            original_name=OriginalName(original_name),
             fixity=Fixity(self.sidecar.md5),
         )
 
