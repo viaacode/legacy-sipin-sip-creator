@@ -129,6 +129,15 @@ class EventListener:
                 "md5_hash_essence_sidecar": sidecar.md5,
             }
 
+            if md5_hash_essence_manifest != sidecar.md5:
+                self.log.error(
+                    f"Supplied MD5 differs from the calculated MD5.",
+                    sidecar_md5=sidecar.md5,
+                    manifest_md5=md5_hash_essence_manifest,
+                )
+                data["outcome"] = EventOutcome.FAIL.to_str()
+                data["message"] = f"Supplied MD5 differs from the calculated MD5."
+
             outgoing_event = Event(attributes, data)
 
             self.pulsar_client.produce_event(outgoing_event)
