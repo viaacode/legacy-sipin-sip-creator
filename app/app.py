@@ -11,7 +11,7 @@ from cloudevents.events import (
     EventOutcome,
     EventAttributes,
 )
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, RetryError
 from urllib3.exceptions import MaxRetryError
 from viaa.configuration import ConfigParser
 from viaa.observability import logging
@@ -93,7 +93,7 @@ class EventListener:
                 bag_path, bag = Bag(
                     message, sidecar, self.org_api_client
                 ).create_sip_bag()
-            except (ConnectionError, MaxRetryError):
+            except (ConnectionError, MaxRetryError, RetryError):
                 cb_nack = functools.partial(
                     self.nack_message, channel, delivery_tag, requeue=True
                 )
