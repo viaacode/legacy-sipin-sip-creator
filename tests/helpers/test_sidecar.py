@@ -47,3 +47,8 @@ def test_sidecar_xdcam():
     assert sidecar.sp_name == "SP Name"
     assert sidecar.type_viaa == "Video"
     assert sidecar.is_xdcam() is True
+
+
+def test_sidecar_batch_id():
+    sidecar = Sidecar(Path("tests", "resources", "sidecar", "sidecar_batch_id.xml"))
+    assert sidecar.batch_id == "Batch ID"
