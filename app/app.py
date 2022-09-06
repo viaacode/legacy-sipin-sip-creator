@@ -129,6 +129,10 @@ class EventListener:
                 "md5_hash_essence_sidecar": sidecar.md5,
             }
 
+            # Add batch ID if available
+            if sidecar.batch_id:
+                data["batch_id"] = sidecar.batch_id
+
             if md5_hash_essence_manifest != sidecar.md5:
                 self.log.error(
                     f"Supplied MD5 differs from the calculated MD5.",
