@@ -37,6 +37,8 @@ class Sidecar:
         self.player_manufacturer = self.root.findtext("player_manufacturer")
         self.player_serial_number = self.root.findtext("player_serial_number")
         self.player_model = self.root.findtext("player_model")
+        # Batch ID
+        self.batch_id = self.root.findtext("batch_id")
 
     def calculate_original_filename(self) -> Optional[str]:
         """Calculate the original filename

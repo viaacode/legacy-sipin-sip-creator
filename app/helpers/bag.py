@@ -648,8 +648,14 @@ class Bag:
             str(root_folder.joinpath("mets.xml")), pretty_print=True
         )
 
+        # Bag
+        # Bag info
+        bag_info = {}
+        if self.sidecar.batch_id:
+            bag_info["Meemoo-Batch-Identifier"] = self.sidecar.batch_id
+
         # Make bag
-        bag = bagit.make_bag(root_folder, checksums=["md5"])
+        bag = bagit.make_bag(root_folder, bag_info=bag_info, checksums=["md5"])
 
         # Zip bag
         bag_path = root_folder.with_suffix(".bag.zip")
