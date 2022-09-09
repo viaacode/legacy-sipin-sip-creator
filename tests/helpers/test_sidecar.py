@@ -5,19 +5,19 @@ from pathlib import Path
 
 import pytest
 
-from app.helpers.sidecar import Sidecar
+from app.helpers.sidecar import InvalidSidecarException, Sidecar
 
 
 def test_sidecar():
     sidecar = Sidecar(Path("tests", "resources", "sidecar", "sidecar.xml"))
-    assert not sidecar.md5
+    assert sidecar.md5 == "7e0ef8c24fe343d98fbb93b6a7db6ccb"
     assert sidecar.cp_id == "CP ID"
     assert sidecar.is_xdcam() is False
 
 
-def test_sidecar_md5():
-    sidecar = Sidecar(Path("tests", "resources", "sidecar", "sidecar_md5.xml"))
-    assert sidecar.md5 == "7e0ef8c24fe343d98fbb93b6a7db6ccb"
+def test_sidecar_no_md5():
+    with pytest.raises(InvalidSidecarException):
+        Sidecar(Path("tests", "resources", "sidecar", "sidecar_no_md5.xml"))
 
 
 @pytest.mark.parametrize(

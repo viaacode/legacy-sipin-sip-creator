@@ -20,7 +20,7 @@ from app.services.org_api import OrgApiClient
 from app.services.pulsar import PulsarClient, PRODUCER_TOPIC
 from app.services import rabbit
 from app.helpers.bag import Bag
-from app.helpers.sidecar import Sidecar
+from app.helpers.sidecar import InvalidSidecarException, Sidecar
 from app.helpers.events import WatchfolderMessage, InvalidMessageException
 
 APP_NAME = "sipin-sip-creator"
@@ -51,6 +51,10 @@ class EventListener:
             # TODO: handle properly
             pass
 
+    def send_ack_message(self, channel, delivery_tag):
+        cb_ack = functools.partial(self.ack_message, channel, delivery_tag)
+        self.rabbit_client.connection.add_callback_threadsafe(cb_ack)
+
     def nack_message(self, channel, delivery_tag, requeue=False):
         if channel.is_open:
             channel.basic_nack(delivery_tag, requeue=requeue)
@@ -58,6 +62,26 @@ class EventListener:
             # Channel is already closed, so we can't NACK this message
             # TODO: handle properly
             pass
+
+    def send_nack_message(self, channel, delivery_tag, requeue=False):
+        cb_nack = functools.partial(
+            self.nack_message, channel, delivery_tag, requeue=requeue
+        )
+        self.rabbit_client.connection.add_callback_threadsafe(cb_nack)
+
+    def send_pulsar_message(self, attributes: dict, data: dict) -> Event:
+        outgoing_event = Event(attributes, data)
+        self.pulsar_client.produce_event(outgoing_event)
+        return outgoing_event
+
+    def send_failed_pulsar_message(
+        self, attributes: dict, data: dict, message: str
+    ) -> Event:
+        data["outcome"] = EventOutcome.FAIL.to_str()
+        data["message"] = message
+        outgoing_event = self.send_pulsar_message(attributes, data)
+        self.log.info("SIP-creation failed event sent.")
+        return outgoing_event
 
     def do_work(self, channel, delivery_tag, properties, body):
         """Worker method:
@@ -70,90 +94,101 @@ class EventListener:
         try:
             # Parse watchfolder
             message = WatchfolderMessage(body)
-
-            essence_path = message.get_essence_path()
-            xml_path = message.get_xml_path()
-
-            # Check if essence and XML file exist
-            if not essence_path.exists() or not xml_path.exists():
-                self.log.error(
-                    f"Essence ({essence_path}) and/or sidecar ({xml_path}) not found."
-                )
-                cb_nack = functools.partial(self.nack_message, channel, delivery_tag)
-                self.rabbit_client.connection.add_callback_threadsafe(cb_nack)
-                return
-
-            # filesize of essence. Essence is moved when creating the bag.
-            essence_filesize = essence_path.stat().st_size
-
-            # Parse sidecar
-            sidecar = Sidecar(xml_path)
-
-            try:
-                bag_path, bag = Bag(
-                    message, sidecar, self.org_api_client
-                ).create_sip_bag()
-            except (ConnectionError, MaxRetryError, RetryError):
-                cb_nack = functools.partial(
-                    self.nack_message, channel, delivery_tag, requeue=True
-                )
-                self.rabbit_client.connection.add_callback_threadsafe(cb_nack)
-                return
-
-            # Regex to match essence paths in bag to fetch md5
-            regex = re.compile("data/representations/.*/data/.*")
-
-            for filepath, fixity in bag.entries.items():
-                if regex.match(filepath):
-                    md5_hash_essence_manifest = fixity["md5"]
-
-            # Send Pulsar event
-            attributes = EventAttributes(
-                type=PRODUCER_TOPIC,
-                source=APP_NAME,
-                subject=essence_path.stem,
-                outcome=EventOutcome.SUCCESS,
-            )
-
-            data = {
-                "host": self.config["host"],
-                "path": str(bag_path),
-                "outcome": EventOutcome.SUCCESS.to_str(),
-                "message": f"SIP created: '{bag_path}'",
-                "essence_filename": essence_path.name,
-                "md5_hash_essence_manifest": md5_hash_essence_manifest,
-                "cp_id": message.flow_id,
-                "local_id": sidecar.local_id,
-                "essence_filesize": essence_filesize,
-                "bag_filesize": bag_path.stat().st_size,
-                "md5_hash_essence_sidecar": sidecar.md5,
-            }
-
-            # Add batch ID if available
-            if sidecar.batch_id:
-                data["batch_id"] = sidecar.batch_id
-
-            if md5_hash_essence_manifest != sidecar.md5.lower():
-                self.log.error(
-                    "Supplied MD5 differs from the calculated MD5.",
-                    sidecar_md5=sidecar.md5.lower(),
-                    manifest_md5=md5_hash_essence_manifest,
-                )
-                data["outcome"] = EventOutcome.FAIL.to_str()
-                data["message"] = "Supplied MD5 differs from the calculated MD5."
-
-            outgoing_event = Event(attributes, data)
-
-            self.pulsar_client.produce_event(outgoing_event)
-            self.log.info("SIP created event sent.")
         except InvalidMessageException as e:
             self.log.error(e)
-            cb_nack = functools.partial(self.nack_message, channel, delivery_tag)
-            self.rabbit_client.connection.add_callback_threadsafe(cb_nack)
+            self.send_nack_message(channel, delivery_tag)
             return
-        # Send RabbitMQ ack.
-        cb_ack = functools.partial(self.ack_message, channel, delivery_tag)
-        self.rabbit_client.connection.add_callback_threadsafe(cb_ack)
+
+        essence_path = message.get_essence_path()
+        xml_path = message.get_xml_path()
+
+        # Check if essence and XML file exist
+        if not essence_path.exists() or not xml_path.exists():
+            self.log.error(
+                f"Essence ({essence_path}) and/or sidecar ({xml_path}) not found."
+            )
+            self.send_nack_message(channel, delivery_tag)
+            return
+
+        # filesize of essence. Essence is moved when creating the bag.
+        essence_filesize = essence_path.stat().st_size
+
+        # Build Pulsar attributes/data
+        attributes = EventAttributes(
+            type=PRODUCER_TOPIC,
+            source=APP_NAME,
+            subject=essence_path.stem,
+            outcome=EventOutcome.SUCCESS,
+        )
+
+        data = {
+            "host": self.config["host"],
+            "essence_filename": essence_path.name,
+            "cp_id": message.flow_id,
+            "essence_filesize": essence_filesize,
+        }
+
+        # Parse sidecar
+        try:
+            sidecar = Sidecar(xml_path)
+        except InvalidSidecarException as e:
+            self.log.error("Could not create SIP because sidecar was invalid.")
+            # Create and send cloudevent
+            self.send_failed_pulsar_message(attributes, data, f"Sidecar not valid. {e}")
+            self.send_nack_message(channel, delivery_tag)
+            return
+
+        # Create bag
+        try:
+            bag_path, bag = Bag(message, sidecar, self.org_api_client).create_sip_bag()
+        except (ConnectionError, MaxRetryError, RetryError):
+            self.send_nack_message(channel, delivery_tag, requeue=True)
+            return
+
+        # Regex to match essence paths in bag to fetch md5
+        regex = re.compile("data/representations/.*/data/.*")
+
+        for filepath, fixity in bag.entries.items():
+            if regex.match(filepath):
+                md5_hash_essence_manifest = fixity["md5"]
+
+        # Add sidecar info to data payload of event
+        # Add batch ID if available
+        if sidecar.batch_id:
+            data["batch_id"] = sidecar.batch_id
+        # Add local ID if available
+        if sidecar.local_id:
+            data["local_id"] = sidecar.local_id
+        data["md5_hash_essence_sidecar"] = sidecar.md5
+
+        # Add bag info to data payload of event
+        data["path"] = str(bag_path)
+        data["bag_filesize"] = bag_path.stat().st_size
+        data["md5_hash_essence_manifest"] = md5_hash_essence_manifest
+
+        # Check if calculated md5 is the same as the supplied md5
+        if md5_hash_essence_manifest != sidecar.md5.lower():
+            self.log.error(
+                "Supplied MD5 differs from the calculated MD5.",
+                sidecar_md5=sidecar.md5.lower(),
+                manifest_md5=md5_hash_essence_manifest,
+            )
+            self.send_failed_pulsar_message(
+                attributes, data, "Supplied MD5 differs from the calculated MD5."
+            )
+            self.send_nack_message(channel, delivery_tag)
+            return
+
+        data["outcome"] = EventOutcome.SUCCESS.to_str()
+        data["message"] = f"SIP created: '{bag_path}'"
+
+        # Create and send cloudevent
+        self.send_pulsar_message(attributes, data)
+
+        self.log.info("SIP created event sent.")
+
+        # Send RabbitMQ ack
+        self.send_ack_message(channel, delivery_tag)
 
     def handle_message(self, channel, method, properties, body):
         """Main method that will handle the incoming messages.

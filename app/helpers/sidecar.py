@@ -6,12 +6,21 @@ from typing import Optional
 from lxml import etree
 
 
+class InvalidSidecarException(Exception):
+    pass
+
+
 class Sidecar:
     """Class used for parsing the metadata sidecar of the essence pair."""
 
     def __init__(self, path: Path):
         self.root = etree.parse(str(path))
+        # Mandatory
         self.md5 = self.root.findtext("md5")
+        if not self.md5:
+            raise InvalidSidecarException("Missing mandatory key: 'md5'")
+
+        # Optional
         self.cp_id = self.root.findtext("CP_id")
         self.dc_source = self.root.findtext("dc_source")
         # Ensure order: Bestandsnaam should have priority over bestandsnaam
@@ -41,7 +50,7 @@ class Sidecar:
         self.batch_id = self.root.findtext("batch_id")
 
     def calculate_original_filename(self) -> Optional[str]:
-        """Calculate the original filename
+        """Calculate the original filename.
 
         Give preference to the "bestandsnaam" field in the "dc_identifiers_localids"
         list. If it doesn't exists, use the value of the 'dc_source' field.
@@ -59,7 +68,7 @@ class Sidecar:
             return None
 
     def is_xdcam(self) -> bool:
-        """Determines if it is XDCAM
+        """Determines if it is XDCAM.
 
         Returns:
             True if XDCAM.
