@@ -68,6 +68,7 @@ EXTENSION_MIMETYPE_MAP = {
     ".ts": "video/MP2T",
     ".m4v": "video/mp4",
     ".xml": "application/xml",
+    ".psb": "application/vnd.adobe.photoshop",
 }
 
 MIMETYPE_TYPE_MAP = {
@@ -84,6 +85,7 @@ MIMETYPE_TYPE_MAP = {
     "video/MP2T": "Video - File-based and Physical Media",
     "video/mpeg": "Video - File-based and Physical Media",
     "application/mxf": "Video - File-based and Physical Media",
+    "application/vnd.adobe.photoshop": "Photographs - Digital",
 }
 
 
