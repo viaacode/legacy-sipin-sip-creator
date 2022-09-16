@@ -28,6 +28,7 @@ from app.helpers.bag import guess_mimetype, calculate_sip_type
         (".ts", "video/MP2T"),
         (".m4v", "video/mp4"),
         (".xml", "application/xml"),
+        (".psb", "application/vnd.adobe.photoshop"),
     ],
 )
 def test_guess_mimetype(extension, mimetype):
@@ -60,6 +61,7 @@ def test_guess_mimetype_other():
         ("video/MP2T", "Video - File-based and Physical Media"),
         ("video/mpeg", "Video - File-based and Physical Media"),
         ("application/mxf", "Video - File-based and Physical Media"),
+        ("application/vnd.adobe.photoshop", "Photographs - Digital"),
     ],
 )
 def test_calculate_sip_type(mimetype, sip_type):
