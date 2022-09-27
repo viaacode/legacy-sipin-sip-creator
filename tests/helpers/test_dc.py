@@ -36,6 +36,13 @@ from lxml import etree
         ("metadata_description_short.xml", "dc_description_short.xml"),
         ("metadata_titles_empty_title.xml", "dc_titles_empty_title.xml"),
         ("metadata_all_empty_titles.xml", "dc_all_empty_titles.xml"),
+        ("metadata_dc_subjects_trefwoord.xml", "dc_dc_subjects_trefwoord.xml"),
+        ("metadata_dc_creators_auteur.xml", "dc_dc_creators_auteur.xml"),
+        (
+            "metadata_dc_rights_rightsOwners_auteursrechthouder.xml",
+            "dc_dc_rights_rightsOwners_auteursrechthouder.xml",
+        ),
+        ("metadata_dc_publishers_publisher.xml", "dc_dc_publishers_publisher.xml"),
     ],
 )
 def test_transform(input_file, output_file):
