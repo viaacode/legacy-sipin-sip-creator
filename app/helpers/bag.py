@@ -655,6 +655,8 @@ class Bag:
         bag_info = {}
         if self.sidecar.batch_id:
             bag_info["Meemoo-Batch-Identifier"] = self.sidecar.batch_id
+        if self.sidecar.sp_name == "TAPE":
+            bag_info["Meemoo-Workflow"] = self.sidecar.sp_name
 
         # Make bag
         bag = bagit.make_bag(root_folder, bag_info=bag_info, checksums=["md5"])
