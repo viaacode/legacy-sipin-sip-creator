@@ -132,7 +132,7 @@ class EventListener:
         try:
             sidecar = Sidecar(xml_path)
         except InvalidSidecarException as e:
-            self.log.error("Could not create SIP because sidecar was invalid.")
+            self.log.error(f"Could not create SIP because sidecar was invalid. {e}")
             # Create and send cloudevent
             self.send_failed_pulsar_message(attributes, data, f"Sidecar not valid. {e}")
             self.send_nack_message(channel, delivery_tag)

@@ -16,8 +16,18 @@ def test_sidecar():
 
 
 def test_sidecar_no_md5():
-    with pytest.raises(InvalidSidecarException):
+    with pytest.raises(InvalidSidecarException) as e:
         Sidecar(Path("tests", "resources", "sidecar", "sidecar_no_md5.xml"))
+    assert str(e.value) == "Missing mandatory key: 'md5'"
+
+
+def test_sidecar_empty():
+    with pytest.raises(InvalidSidecarException) as e:
+        Sidecar(Path("tests", "resources", "sidecar", "sidecar_empty.xml"))
+    assert (
+        str(e.value)
+        == "XML syntax error: 'Document is empty, line 1, column 1 (sidecar_empty.xml, line 1)'"
+    )
 
 
 @pytest.mark.parametrize(
