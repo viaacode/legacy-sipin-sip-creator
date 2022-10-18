@@ -4,6 +4,7 @@
 from pathlib import Path
 from typing import Optional
 from lxml import etree
+from lxml.etree import XMLSyntaxError
 
 
 class InvalidSidecarException(Exception):
@@ -14,7 +15,10 @@ class Sidecar:
     """Class used for parsing the metadata sidecar of the essence pair."""
 
     def __init__(self, path: Path):
-        self.root = etree.parse(str(path))
+        try:
+            self.root = etree.parse(str(path))
+        except XMLSyntaxError as e:
+            raise InvalidSidecarException(f"XML syntax error: '{e}'")
         # Mandatory
         self.md5 = self.root.findtext("md5")
         if not self.md5:
