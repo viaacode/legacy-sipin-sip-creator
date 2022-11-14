@@ -423,7 +423,7 @@
         </xsl:element>
     </xsl:template>
 
-    <xsl:template match="dc_creators/Auteur | dc_creators/auteur">
+    <xsl:template match="dc_creators/Auteur">
         <xsl:element name="dcterms:creator">
             <xsl:attribute name="schema:roleName">
                 <xsl:text>auteur</xsl:text>
@@ -648,7 +648,7 @@
     </xsl:template>
 
     <!-- Publisher-->
-    <xsl:template match="dc_publishers/Publisher | dc_publishers/publisher">
+    <xsl:template match="dc_publishers/Publisher">
         <xsl:element name="dcterms:publisher">
             <xsl:value-of select="text()" />
         </xsl:element>
@@ -706,7 +706,7 @@
     </xsl:template>
 
     <!-- Rights owner author -->
-    <xsl:template match="dc_rights_rightsOwners/Auteursrechthouder | dc_rights_rightsOwners/auteursrechthouder">
+    <xsl:template match="dc_rights_rightsOwners/Auteursrechthouder">
         <xsl:element name="dcterms:rightsHolder">
             <xsl:attribute name="schema:roleName">
                 <xsl:text>auteursrechthouder</xsl:text>
@@ -726,7 +726,7 @@
     </xsl:template>
 
     <!-- Subjects -->
-    <xsl:template match="dc_subjects/Trefwoord | dc_Subjects/Trefwoord | dc_subjects/trefwoord">
+    <xsl:template match="dc_subjects/Trefwoord | dc_Subjects/Trefwoord">
         <xsl:element name="dcterms:subject">
             <xsl:value-of select="text()" />
         </xsl:element>
