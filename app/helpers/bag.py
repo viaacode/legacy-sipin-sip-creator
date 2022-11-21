@@ -370,71 +370,19 @@ class Bag:
 
         return doc.to_element()
 
-    def create_sip_bag(self) -> Tuple[Path, bagit.Bag]:
-        """Create the SIP in the bag format.
-
-        - Create the minimal SIP
-        - Create a bag from the minimal SIP
-        - Zip the bag
-        - Remove the folder
-
-        Structure of SIP:
-            mets.xml
-            metadata/
-                descriptive/
-                    dc.xml
-                preservation/
-                    premis.xml
-            representations/representation_1/
-                data/
-                    essence.ext
-                metadata/
-                    descriptive/
-                    preservation/
-                        premis.xml
-
-        Args:
-            watchfolder_message: The parse watchfolder message.
-        Returns:
-            The path of the zipped bag and the bag information.
-        """
-        essence_path: Path = self.watchfolder_message.get_essence_path()
-        xml_path = self.watchfolder_message.get_xml_path()
-        if not essence_path.exists() or not xml_path.exists():
-            # TODO: raise error
-            return
-
-        # Relationships uuids
-        ie_uuid = generate_uuid()
-        rep_uuid = generate_uuid()
-        file_uuid = generate_uuid()
-
-        # Root folder for bag
-        root_folder = Path(essence_path.parent, essence_path.stem)
-        root_folder.mkdir(exist_ok=True)
-
-        # /metadata
-        metadata_folder = root_folder.joinpath("metadata")
-        metadata_folder.mkdir(exist_ok=True)
-        # /metadata/descriptive/
-        metadata_desc_folder = metadata_folder.joinpath("descriptive")
-        metadata_desc_folder.mkdir(exist_ok=True)
-        # Create descriptive metadata and store it
+    def _write_descriptive_metadata_ie(self, folder: Path, dc: Path, ie_uuid: str):
         dc_terms = DC.transform(
-            xml_path,
+            dc,
             ie_uuid=etree.XSLT.strparam(ie_uuid),
         )
         etree.ElementTree(dc_terms).write(
-            str(metadata_desc_folder.joinpath("dc.xml")),
+            str(folder.joinpath("dc.xml")),
             pretty_print=True,
         )
 
-        # /metadata/preservation/
-        metadata_pres_folder = metadata_folder.joinpath("preservation")
-        metadata_pres_folder.mkdir(exist_ok=True)
-        # Premis
-
-        # Premis object of type intellectualEntity
+    def _write_preservation_metadata_ie(
+        self, folder: Path, ie_uuid: str, rep_uuid: str
+    ):
         premis_element = Premis()
         # Premis object IE
         premis_object_element_ie = Object(
@@ -553,9 +501,126 @@ class Bag:
 
         # Write preservation data on IE level.
         etree.ElementTree(premis_element.to_element()).write(
-            str(metadata_pres_folder.joinpath("premis.xml")),
+            str(folder.joinpath("premis.xml")),
             pretty_print=True,
         )
+
+    def _write_preservation_metadata_representation(
+        self, folder: Path, essence: Path, rep_uuid: str, file_uuid: str, ie_uuid: str
+    ):
+        premis_element = Premis()
+        # Premis object representation
+        premis_object_element_rep = Object(
+            ObjectType.REPRESENTATION,
+            [ObjectIdentifier("uuid", rep_uuid)],
+        )
+        # Premis object representation relationships
+        premis_object_element_rep_relation_includes = Relationship(
+            RelationshipSubtype.INCLUDES, uuid=file_uuid
+        )
+        premis_object_element_rep_relation_represents = Relationship(
+            RelationshipSubtype.REPRESENTS, ie_uuid
+        )
+
+        premis_object_element_rep.add_relationship(
+            premis_object_element_rep_relation_includes
+        )
+        premis_object_element_rep.add_relationship(
+            premis_object_element_rep_relation_represents
+        )
+
+        # Calculate original name
+        # First of, check in the sidecar metadata in order of existence:
+        #   VIAA/dc_identifier_localids/Bestandsnaam
+        #   VIAA/dc_identifier_localids/bestandsnaam
+        #   VIAA/dc_source
+        # If not available, use the filename of the essence
+        original_name = self.sidecar.calculate_original_filename()
+        if not original_name:
+            original_name = essence.name
+        premis_element.add_object(premis_object_element_rep)
+
+        # Premis object file
+        premis_object_element_file = Object(
+            ObjectType.FILE,
+            [ObjectIdentifier("uuid", file_uuid)],
+            original_name=OriginalName(original_name),
+            fixity=Fixity(self.sidecar.md5),
+        )
+
+        # Premis object file relationship
+        premis_object_element_file_relation = Relationship(
+            RelationshipSubtype.INCLUDED_IN, rep_uuid
+        )
+        premis_object_element_file.add_relationship(premis_object_element_file_relation)
+
+        premis_element.add_object(premis_object_element_file)
+
+        etree.ElementTree(premis_element.to_element()).write(
+            str(folder.joinpath("premis.xml")),
+            pretty_print=True,
+        )
+
+    def create_sip_bag(self) -> Tuple[Path, bagit.Bag]:
+        """Create the SIP in the bag format.
+
+        - Create the minimal SIP
+        - Create a bag from the minimal SIP
+        - Zip the bag
+        - Remove the folder
+
+        Structure of SIP:
+            mets.xml
+            metadata/
+                descriptive/
+                    dc.xml
+                preservation/
+                    premis.xml
+            representations/representation_1/
+                data/
+                    essence.ext
+                    essence.srt (optional)
+                metadata/
+                    descriptive/
+                    preservation/
+                        premis.xml
+
+        Args:
+            watchfolder_message: The parse watchfolder message.
+        Returns:
+            The path of the zipped bag and the bag information.
+        """
+        essence_path: Path = self.watchfolder_message.get_essence_path()
+        xml_path: Path = self.watchfolder_message.get_xml_path()
+        collaterals: Path = self.watchfolder_message.get_collateral_paths()
+        if not essence_path.exists() or not xml_path.exists():
+            # TODO: raise error
+            return
+
+        # Relationships uuids
+        ie_uuid = generate_uuid()
+        rep_uuid = generate_uuid()
+        file_uuid = generate_uuid()
+
+        # Root folder for bag
+        root_folder = Path(essence_path.parent, essence_path.stem)
+        root_folder.mkdir(exist_ok=True)
+
+        # /metadata
+        metadata_folder = root_folder.joinpath("metadata")
+        metadata_folder.mkdir(exist_ok=True)
+        # /metadata/descriptive/
+        metadata_desc_folder = metadata_folder.joinpath("descriptive")
+        metadata_desc_folder.mkdir(exist_ok=True)
+        # Write descriptive metadata
+        self._write_descriptive_metadata_ie(metadata_desc_folder, xml_path, ie_uuid)
+
+        # /metadata/preservation/
+        metadata_pres_folder = metadata_folder.joinpath("preservation")
+        metadata_pres_folder.mkdir(exist_ok=True)
+
+        # Write preservation metadata on IE level
+        self._write_preservation_metadata_ie(metadata_pres_folder, ie_uuid, rep_uuid)
 
         # /representations/representation_1/
         representations_folder = root_folder.joinpath(
@@ -586,58 +651,13 @@ class Bag:
         )
         representations_metadata_pres_folder.mkdir(exist_ok=True)
 
-        # Create and write premis
-        premis_element = Premis()
-        # Premis object representation
-        premis_object_element_rep = Object(
-            ObjectType.REPRESENTATION,
-            [ObjectIdentifier("uuid", rep_uuid)],
-        )
-        # Premis object representation relationships
-        premis_object_element_rep_relation_includes = Relationship(
-            RelationshipSubtype.INCLUDES, uuid=file_uuid
-        )
-        premis_object_element_rep_relation_represents = Relationship(
-            RelationshipSubtype.REPRESENTS, ie_uuid
-        )
-
-        premis_object_element_rep.add_relationship(
-            premis_object_element_rep_relation_includes
-        )
-        premis_object_element_rep.add_relationship(
-            premis_object_element_rep_relation_represents
-        )
-
-        # Calculate original name
-        # First of, check in the sidecar metadata in order of existence:
-        #   VIAA/dc_identifier_localids/Bestandsnaam
-        #   VIAA/dc_identifier_localids/bestandsnaam
-        #   VIAA/dc_source
-        # If not available, use the filename of the essence
-        original_name = self.sidecar.calculate_original_filename()
-        if not original_name:
-            original_name = essence_path.name
-        premis_element.add_object(premis_object_element_rep)
-
-        # Premis object file
-        premis_object_element_file = Object(
-            ObjectType.FILE,
-            [ObjectIdentifier("uuid", file_uuid)],
-            original_name=OriginalName(original_name),
-            fixity=Fixity(self.sidecar.md5),
-        )
-
-        # Premis object file relationship
-        premis_object_element_file_relation = Relationship(
-            RelationshipSubtype.INCLUDED_IN, rep_uuid
-        )
-        premis_object_element_file.add_relationship(premis_object_element_file_relation)
-
-        premis_element.add_object(premis_object_element_file)
-
-        etree.ElementTree(premis_element.to_element()).write(
-            str(representations_metadata_pres_folder.joinpath("premis.xml")),
-            pretty_print=True,
+        # Write preservation metadata on representation level
+        self._write_preservation_metadata_representation(
+            representations_metadata_pres_folder,
+            essence_path,
+            rep_uuid,
+            file_uuid,
+            ie_uuid,
         )
 
         # Create and write representation mets.xml
