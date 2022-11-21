@@ -20,11 +20,11 @@ def test_message_valid():
     event = WatchfolderMessage(_load_resource("message.json"))
     assert event.cp_name == "CPFIELD"
     assert event.flow_id == "FLOWFIELD"
-    essence_file = event._get_file("essence")
+    essence_file = event._get_files("essence")
     assert essence_file.file_name == "file.mxf"
     assert essence_file.file_path == "/path/to/essence/file"
 
-    xml_file = event._get_file("sidecar")
+    xml_file = event._get_files("sidecar")
     assert xml_file.file_name == "file.xml"
     assert xml_file.file_path == "/path/to/xml/file"
 
@@ -47,6 +47,14 @@ def test_message_missing_key():
 def test_get_essence_path():
     event = WatchfolderMessage(_load_resource("message.json"))
     assert event.get_essence_path() == Path("/path/to/essence/file/file.mxf")
+
+
+def test_get_collateral_paths():
+    event = WatchfolderMessage(_load_resource("message_collaterals.json"))
+    assert event.get_collateral_paths() == [
+        Path("/path/to/srt/file/sub1.srt"),
+        Path("/path/to/srt/file/sub2.srt"),
+    ]
 
 
 def test_get_xml_path():

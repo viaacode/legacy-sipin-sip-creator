@@ -592,7 +592,6 @@ class Bag:
         """
         essence_path: Path = self.watchfolder_message.get_essence_path()
         xml_path: Path = self.watchfolder_message.get_xml_path()
-        collaterals: Path = self.watchfolder_message.get_collateral_paths()
         if not essence_path.exists() or not xml_path.exists():
             # TODO: raise error
             return
