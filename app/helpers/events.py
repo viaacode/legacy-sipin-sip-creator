@@ -4,7 +4,6 @@
 import json
 from pathlib import Path
 from json import JSONDecodeError
-from typing import List, Union
 
 
 class InvalidMessageException(Exception):
@@ -53,7 +52,7 @@ class WatchfolderMessage:
         except KeyError as e:
             raise InvalidMessageException(f"Missing mandatory key: {e}")
 
-    def _get_files(self, file_type: str) -> Union[SIPItem, List[SIPItem]]:
+    def _get_files(self, file_type: str) -> SIPItem | list[SIPItem]:
         """Return the SIPItem(s) of a file in the incoming SIP.
 
         Only the type 'sidecar', 'essence' or 'collateral' is allowed.

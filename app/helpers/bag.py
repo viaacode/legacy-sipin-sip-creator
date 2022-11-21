@@ -6,7 +6,6 @@ import shutil
 import zipfile
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Tuple
 
 import bagit
 from lxml import etree
@@ -91,7 +90,7 @@ MIMETYPE_TYPE_MAP = {
 }
 
 
-def guess_mimetype(file: Path) -> Optional[str]:
+def guess_mimetype(file: Path) -> str | None:
     """Calculate the mimetype of a path based on the extension.
 
     Args:
@@ -561,7 +560,7 @@ class Bag:
             pretty_print=True,
         )
 
-    def create_sip_bag(self) -> Tuple[Path, bagit.Bag]:
+    def create_sip_bag(self) -> tuple[Path, bagit.Bag]:
         """Create the SIP in the bag format.
 
         - Create the minimal SIP

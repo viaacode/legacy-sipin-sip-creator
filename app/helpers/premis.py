@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum
-from typing import List, Optional
 
 from lxml import etree
 
@@ -299,11 +298,11 @@ class Object:
     def __init__(
         self,
         type: ObjectType,
-        identifiers: List[ObjectIdentifier],
-        original_name: Optional[OriginalName] = None,
-        fixity: Optional[Fixity] = None,
-        relationships: Optional[List[Relationship]] = None,
-        storages: Optional[List[Storage]] = None,
+        identifiers: list[ObjectIdentifier],
+        original_name: OriginalName | None = None,
+        fixity: Fixity | None = None,
+        relationships: list[Relationship] | None = None,
+        storages: list[Storage] | None = None,
     ):
         self.type: ObjectType = type
         self.identifiers = identifiers
@@ -466,12 +465,12 @@ class Agent:
 
     def __init__(
         self,
-        identifiers: List[AgentIdentifier],
+        identifiers: list[AgentIdentifier],
         type: str = "",
         name: str = "",
-        extension: Optional[AgentExtension] = None,
+        extension: AgentExtension | None = None,
     ):
-        self.identifiers: List[AgentIdentifier] = identifiers
+        self.identifiers: list[AgentIdentifier] = identifiers
         self.type = type
         self.name = name
         self.extension = extension
@@ -554,7 +553,7 @@ class LinkingAgentIdentifier:
         roles: The roles of the linking agent identifier."""
 
     def __init__(
-        self, type: str, value: str, roles: Optional[List[LinkingAgentRole]] = None
+        self, type: str, value: str, roles: list[LinkingAgentRole] | None = None
     ):
         self.type = type
         self.value = value
@@ -631,7 +630,7 @@ class LinkingObjectIdentifier:
         rol: The roles of the linking object identifier."""
 
     def __init__(
-        self, type: str, value: str, roles: Optional[List[LinkingObjectRole]] = None
+        self, type: str, value: str, roles: list[LinkingObjectRole] | None = None
     ):
         self.type = type
         self.value = value
@@ -752,9 +751,9 @@ class Event:
         identifier: EventIdentifier,
         type: str,
         date_time: str,
-        event_detail_informations: Optional[List[EventDetailInformation]] = None,
-        linking_agent_identifiers: Optional[List[LinkingAgentIdentifier]] = None,
-        linking_object_identifiers: Optional[List[LinkingObjectIdentifier]] = None,
+        event_detail_informations: list[EventDetailInformation] | None = None,
+        linking_agent_identifiers: list[LinkingAgentIdentifier] | None = None,
+        linking_object_identifiers: list[LinkingObjectIdentifier] | None = None,
     ):
         self.identifier = identifier
         self.type = type
@@ -814,9 +813,9 @@ class Premis:
     ATTRS = {"version": "3.0"}
 
     def __init__(self):
-        self.objects: List[Object] = []
-        self.events: List[Event] = []
-        self.agents: List[Agent] = []
+        self.objects: list[Object] = []
+        self.events: list[Event] = []
+        self.agents: list[Agent] = []
 
     def add_object(self, object: Object):
         self.objects.append(object)

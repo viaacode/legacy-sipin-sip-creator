@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
-from typing import Optional
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 
@@ -53,7 +52,7 @@ class Sidecar:
         # Batch ID
         self.batch_id = self.root.findtext("batch_id")
 
-    def calculate_original_filename(self) -> Optional[str]:
+    def calculate_original_filename(self) -> str | None:
         """Calculate the original filename.
 
         Give preference to the "bestandsnaam" field in the "dc_identifiers_localids"
