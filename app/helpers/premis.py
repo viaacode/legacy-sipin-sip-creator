@@ -26,6 +26,8 @@ class RelationshipSubtype(Enum):
     REPRESENTED_BY = "is represented by"
     REPRESENTS = "represents"
     INCLUDED_IN = "is included in"
+    IS_REQUIRED_BY = "is required by"
+    REQUIRES = "requires"
 
 
 class ObjectType(Enum):
@@ -139,11 +141,13 @@ class Relationship:
         RelationshipSubtype.REPRESENTED_BY: "isr",
         RelationshipSubtype.REPRESENTS: "rep",
         RelationshipSubtype.INCLUDED_IN: "isi",
+        RelationshipSubtype.IS_REQUIRED_BY: "irq",
+        RelationshipSubtype.REQUIRES: "req",
     }
 
-    def __init__(self, subtype: RelationshipSubtype, uuid: str):
+    def __init__(self, subtype: RelationshipSubtype, uuids: list[str]):
         self.subtype = subtype
-        self.uuid = uuid
+        self.uuids = uuids
 
     def to_element(self):
         """Returns the relationship node as an lxml element.
@@ -180,7 +184,8 @@ class Relationship:
         ).text = self.subtype.value
 
         # Related object identifier
-        relationship_element.append(RelatedObjectIdentifier(self.uuid).to_element())
+        for uuid in self.uuids:
+            relationship_element.append(RelatedObjectIdentifier(uuid).to_element())
 
         return relationship_element
 
