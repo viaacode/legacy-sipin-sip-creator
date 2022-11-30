@@ -44,7 +44,9 @@ def test_transform(input_file, output_file):
     # Act
     terms_element = DC.transform(medadata_path)
     # Assert
-    terms_xml = etree.tostring(terms_element, pretty_print=True).strip()
+    terms_xml = etree.tostring(
+        terms_element, pretty_print=True, encoding="utf-8"
+    ).strip()
     xml = load_resource(Path("tests", "resources", "dc", output_file))
     assert terms_xml == xml
 
@@ -58,6 +60,8 @@ def test_transform_uuid():
         ie_uuid=etree.XSLT.strparam("uuid-865b767d-05f9-49d5-ba54-e9e82acec30d"),
     )
     # Assert
-    terms_xml = etree.tostring(terms_element, pretty_print=True).strip()
+    terms_xml = etree.tostring(
+        terms_element, pretty_print=True, encoding="utf-8"
+    ).strip()
     xml = load_resource(Path("tests", "resources", "dc", "dc.xml"))
     assert terms_xml == xml

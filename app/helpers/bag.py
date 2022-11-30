@@ -427,6 +427,7 @@ class Bag:
         etree.ElementTree(dc_terms).write(
             str(metadata_desc_folder.joinpath("dc.xml")),
             pretty_print=True,
+            encoding="utf-8",
         )
 
         # /metadata/preservation/
