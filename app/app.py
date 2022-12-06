@@ -146,7 +146,7 @@ class EventListener:
             return
 
         # Regex to match essence paths in bag to fetch md5
-        regex = re.compile("data/representations/.*/data/.*")
+        regex = re.compile("data/representations/.*/data/.*\.(?!srt).*")
 
         for filepath, fixity in bag.entries.items():
             if regex.match(filepath):
