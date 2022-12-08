@@ -4,7 +4,6 @@
 from __future__ import annotations
 from datetime import datetime
 from enum import Enum
-from typing import Union, Optional
 from uuid import uuid4
 
 from lxml import etree
@@ -224,7 +223,7 @@ class File:
         self.children = []
         self.is_mets = is_mets
 
-    def is_fptr(self) -> Union[bool, Optional]:
+    def is_fptr(self) -> bool | None:
         """Calculates if a file is a fptr or a mptr
 
         If a file points to a METS file, it is a mptr (METS pointer).

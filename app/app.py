@@ -101,6 +101,7 @@ class EventListener:
 
         essence_path = message.get_essence_path()
         xml_path = message.get_xml_path()
+        collaterals_paths = message.get_collateral_paths()
 
         # Check if essence and XML file exist
         if not essence_path.exists() or not xml_path.exists():
@@ -126,6 +127,8 @@ class EventListener:
             "essence_filename": essence_path.name,
             "cp_id": message.flow_id,
             "essence_filesize": essence_filesize,
+            "has_collaterals": bool(collaterals_paths),
+            "collateral_filenames": [path.name for path in collaterals_paths],
         }
 
         # Parse sidecar
@@ -146,7 +149,7 @@ class EventListener:
             return
 
         # Regex to match essence paths in bag to fetch md5
-        regex = re.compile("data/representations/.*/data/.*")
+        regex = re.compile("data/representations/.*/data/.*\.(?!srt).*")
 
         for filepath, fixity in bag.entries.items():
             if regex.match(filepath):

@@ -31,6 +31,7 @@ from app.helpers.bag import guess_mimetype, calculate_sip_type
         (".psb", "application/vnd.adobe.photoshop"),
         (".mpeg", "video/mpeg"),
         (".mts", "video/MP2T"),
+        (".srt", "text/plain"),
     ],
 )
 def test_guess_mimetype(extension, mimetype):

@@ -40,27 +40,36 @@ class WatchfolderMessage:
             self.cp_name = msg["cp_name"]
             self.flow_id = msg["flow_id"]
             self.files = {}
+            collaterals = []
             for sip_package in msg["sip_package"]:
-                self.files[sip_package["file_type"]] = SIPItem(sip_package)
+                if sip_package["file_type"] == "collateral":
+                    collaterals.append(SIPItem(sip_package))
+                else:
+                    self.files[sip_package["file_type"]] = SIPItem(sip_package)
+
+            self.files["collateral"] = collaterals
 
         except KeyError as e:
             raise InvalidMessageException(f"Missing mandatory key: {e}")
 
-    def _get_file(self, file_type: str) -> SIPItem:
-        """Return the SIPItem of a file in the incoming SIP.
+    def _get_files(self, file_type: str) -> SIPItem | list[SIPItem]:
+        """Return the SIPItem(s) of a file in the incoming SIP.
 
-        Only the type 'sidecar' or 'essence' is allowed.
+        Only the type 'sidecar', 'essence' or 'collateral' is allowed.
+
+        There should be only one file of type 'sidecar' and 'essence'.
+        It is possible to have multiple files op type 'collateral'.
 
         Args:
             file_type: The type of the file.
 
-        Returns: The SIPItem.
+        Returns: The SIPItem(s).
         """
         try:
             return self.files[file_type]
         except KeyError:
             raise ValueError(
-                "Not a valid file type of the incoming SIP: {file_type}. Only 'sidecar' or 'essence' is allowed"
+                "Not a valid file type of the incoming SIP: {file_type}. Only 'sidecar', 'essence' or 'collateral' is allowed"
             )
 
     def get_essence_path(self) -> Path:
@@ -68,7 +77,7 @@ class WatchfolderMessage:
 
         Returns: The essence file as a Path.
         """
-        file = self._get_file("essence")
+        file = self._get_files("essence")
         return Path(file.file_path, file.file_name)
 
     def get_xml_path(self) -> Path:
@@ -77,5 +86,15 @@ class WatchfolderMessage:
         Returns: The metadata file as a Path.
         """
 
-        file = self._get_file("sidecar")
+        file = self._get_files("sidecar")
         return Path(file.file_path, file.file_name)
+
+    def get_collateral_paths(self) -> list[Path]:
+        """Return the paths of the collateral files.
+
+        Returns: The collateral files as list of Paths.
+        """
+        return [
+            Path(file.file_path, file.file_name)
+            for file in self._get_files("collateral")
+        ]

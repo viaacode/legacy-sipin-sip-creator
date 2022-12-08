@@ -4,12 +4,12 @@ PyYAML==6.0
 structlog==21.5.0
 viaa-chassis==0.2.0rc1
 bagit==1.8.1
-pulsar-client==2.8.1
+pulsar-client==2.10.0
 meemoo-cloudevents==0.1.0rc3
 lxml==4.7.1
 requests==2.28.0
 # Dev
-black==21.12b0
+black==22.10.0
 flake8==4.0.1
 # Test
 pytest==6.2.5
