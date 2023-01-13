@@ -71,6 +71,7 @@ EXTENSION_MIMETYPE_MAP = {
     ".mpeg": "video/mpeg",
     ".mts": "video/MP2T",
     ".srt": "text/plain",
+    ".mkv": "video/x-matroska",
 }
 
 MIMETYPE_TYPE_MAP = {
@@ -88,6 +89,7 @@ MIMETYPE_TYPE_MAP = {
     "video/mpeg": "Video - File-based and Physical Media",
     "application/mxf": "Video - File-based and Physical Media",
     "application/vnd.adobe.photoshop": "Photographs - Digital",
+    "video/x-matroska": "Video - File-based and Physical Media",
 }
 
 
