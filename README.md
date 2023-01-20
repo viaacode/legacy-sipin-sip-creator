@@ -1,4 +1,4 @@
-# SIPIN SIP Creator
+# Legacy-sipin-sip-creator
 
 ## Synopsis
 

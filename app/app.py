@@ -23,7 +23,7 @@ from app.helpers.bag import Bag
 from app.helpers.sidecar import InvalidSidecarException, Sidecar
 from app.helpers.events import WatchfolderMessage, InvalidMessageException
 
-APP_NAME = "sipin-sip-creator"
+APP_NAME = "legacy-sipin-sip-creator"
 
 
 class EventListener:
