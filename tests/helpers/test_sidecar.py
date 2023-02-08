@@ -57,6 +57,10 @@ def test_sidecar_xdcam():
     assert sidecar.sp_name == "SP Name"
     assert sidecar.type_viaa == "Video"
     assert sidecar.is_xdcam() is True
+    assert sidecar.brand == "Brand"
+    assert sidecar.collection_box_barcode == "Collection box barcode"
+    assert sidecar.carrier_barcode == "Carrier barcode"
+    assert sidecar.transport_box_barcode == "Transport box barcode"
 
 
 def test_sidecar_batch_id():

@@ -49,6 +49,11 @@ class Sidecar:
         self.player_manufacturer = self.root.findtext("player_manufacturer")
         self.player_serial_number = self.root.findtext("player_serial_number")
         self.player_model = self.root.findtext("player_model")
+        self.collection_box_barcode = self.root.findtext("collection_box_barcode")
+        self.carrier_barcode = self.root.findtext("carrier_barcode")
+        self.transport_box_barcode = self.root.findtext("transport_box_barcode")
+        self.brand = self.root.findtext("brand")
+
         # Batch ID
         self.batch_id = self.root.findtext("batch_id")
 
