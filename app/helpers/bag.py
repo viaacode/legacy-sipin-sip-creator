@@ -43,6 +43,8 @@ from app.helpers.premis import (
     Relationship,
     RelationshipSubtype,
     Storage,
+    SignificantProperties,
+    SignificantPropertiesExtension,
     Premis,
 )
 from app.helpers.sidecar import Sidecar
@@ -521,6 +523,46 @@ class Bag:
             )
 
             premis_element.add_agent(premis_agent_type)
+
+            # Premis significant properties
+            collection_box_barcode = self.sidecar.collection_box_barcode
+            if collection_box_barcode:
+                collection_box_barcode_element = SignificantProperties(
+                    type="collection_box_barcode",
+                    value=collection_box_barcode,
+                )
+                premis_object_element_rep.add_significant_properties(
+                    collection_box_barcode_element
+                )
+
+            carrier_barcode = self.sidecar.carrier_barcode
+            if carrier_barcode:
+                carrier_barcode_element = SignificantProperties(
+                    type="carrier_barcode", value=carrier_barcode
+                )
+                premis_object_element_rep.add_significant_properties(
+                    carrier_barcode_element
+                )
+
+            transport_box_barcode = self.sidecar.transport_box_barcode
+            if transport_box_barcode:
+                transport_box_barcode_element = SignificantProperties(
+                    type="transport_box_barcode",
+                    value=transport_box_barcode,
+                )
+                premis_object_element_rep.add_significant_properties(
+                    transport_box_barcode_element
+                )
+
+            brand_name = self.sidecar.brand
+            if brand_name:
+                significant_properties_extension = SignificantPropertiesExtension(
+                    brand_name=brand_name
+                )
+                brand_element = SignificantProperties(
+                    extension=significant_properties_extension
+                )
+                premis_object_element_rep.add_significant_properties(brand_element)
 
         # Write preservation data on IE level.
         etree.ElementTree(premis_element.to_element()).write(

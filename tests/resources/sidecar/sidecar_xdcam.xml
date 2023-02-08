@@ -20,4 +20,8 @@
     <player_manufacturer>SONY</player_manufacturer>
     <player_serial_number>0000000</player_serial_number>
     <player_model>PDW-U4</player_model>
+    <brand>Brand</brand>
+    <collection_box_barcode>Collection box barcode</collection_box_barcode>
+    <carrier_barcode>Carrier barcode</carrier_barcode>
+    <transport_box_barcode>Transport box barcode</transport_box_barcode>
 </VIAA>
