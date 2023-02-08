@@ -288,6 +288,88 @@ class Storage:
         return storage_element
 
 
+class SignificantPropertiesExtension:
+    """Class representing a significant properties extension node.
+
+    Args:
+        brand_name: The brand name of the material carrier.
+    """
+
+    def __init__(self, brand_name: str | None = None):
+        self.brand_name = brand_name
+
+    def to_element(self):
+        """Returns the significant properties extension node as an lxml element.
+
+        Returns:
+            The significant properties extension element."""
+
+        # Significant properties extension
+        extension_element = etree.Element(
+            qname_text(NSMAP, "premis", "significantPropertiesExtension")
+        )
+        if self.brand_name:
+            brand_element = etree.SubElement(
+                extension_element,
+                qname_text(NSMAP, "schema", "brand"),
+            )
+            etree.SubElement(
+                brand_element,
+                qname_text(NSMAP, "schema", "name"),
+            ).text = self.brand_name
+
+        return extension_element
+
+
+class SignificantProperties:
+    """Class representing a significant properties node.
+
+    Args:
+        type: The significant property type.
+        value: The significant property value.
+        extension: The significant property extension.
+    """
+
+    def __init__(
+        self,
+        type: str | None = None,
+        value: str | None = None,
+        extension: SignificantPropertiesExtension | None = None,
+    ):
+        self.type = type
+        self.value = value
+        self.extension = extension
+
+    def to_element(self):
+        """Returns the significant properties node as an lxml element.
+
+        Returns:
+            The significant properties element."""
+
+        # Significant properties
+        significant_properties_element = etree.Element(
+            qname_text(NSMAP, "premis", "significantProperties")
+        )
+
+        # Significant properties type
+        if self.type:
+            etree.SubElement(
+                significant_properties_element,
+                qname_text(NSMAP, "premis", "significantPropertiesType"),
+            ).text = self.type
+        # Significant properties value
+        if self.value:
+            etree.SubElement(
+                significant_properties_element,
+                qname_text(NSMAP, "premis", "significantPropertiesValue"),
+            ).text = self.value
+
+        if self.extension:
+            significant_properties_element.append(self.extension.to_element())
+
+        return significant_properties_element
+
+
 class Object:
     """Class representing a object node.
 
@@ -308,6 +390,7 @@ class Object:
         fixity: Fixity | None = None,
         relationships: list[Relationship] | None = None,
         storages: list[Storage] | None = None,
+        significant_properties: list[SignificantProperties] | None = None,
     ):
         self.type: ObjectType = type
         self.identifiers = identifiers
@@ -315,6 +398,9 @@ class Object:
         self.fixity = fixity
         self.relationships = relationships if relationships else []
         self.storages = storages if storages else []
+        self.significant_properties = (
+            significant_properties if significant_properties else []
+        )
 
     def add_relationship(self, relationship: Relationship):
         self.relationships.append(relationship)
@@ -324,6 +410,9 @@ class Object:
 
     def add_storage(self, storage: Storage):
         self.storages.append(storage)
+
+    def add_significant_properties(self, significant_properties: SignificantProperties):
+        self.significant_properties.append(significant_properties)
 
     def to_element(self):
         """Returns the object node as an lxml element.
@@ -358,6 +447,10 @@ class Object:
         # Premis relationships
         for relationship in self.relationships:
             object_element.append(relationship.to_element())
+
+        # Premis significant properties
+        for significant_property in self.significant_properties:
+            object_element.append(significant_property.to_element())
 
         return object_element
 
