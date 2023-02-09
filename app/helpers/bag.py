@@ -805,7 +805,7 @@ class Bag:
         bag = bagit.make_bag(root_folder, bag_info=bag_info, checksums=["md5"])
 
         # Zip bag
-        bag_path = root_folder.with_suffix(".bag.zip")
+        bag_path = Path(f"{root_folder}.bag.zip")
         with zipfile.ZipFile(bag_path, mode="w") as archive:
             for file_path in root_folder.rglob("*"):
                 archive.write(file_path, arcname=file_path.relative_to(root_folder))
