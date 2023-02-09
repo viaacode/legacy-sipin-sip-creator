@@ -94,6 +94,7 @@
   <dcterms:creator schema:roleName="productiehuis">Productiehuis</dcterms:creator>
   <dcterms:creator schema:roleName="regisseur">Regisseur</dcterms:creator>
   <dcterms:creator schema:roleName="schrijver">Schrijver</dcterms:creator>
+  <dcterms:creator schema:roleName="geïnterviewde">Geïnterviewde</dcterms:creator>
   <dcterms:abstract>Abstract</dcterms:abstract>
   <schema:caption>Caption</schema:caption>
   <schema:transcript>Transcript</schema:transcript>

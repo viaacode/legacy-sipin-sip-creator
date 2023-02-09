@@ -403,6 +403,7 @@ class Bag:
         etree.ElementTree(dc_terms).write(
             str(folder.joinpath("dc.xml")),
             pretty_print=True,
+            encoding="utf-8",
         )
 
     def _write_preservation_metadata_ie(

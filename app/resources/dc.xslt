@@ -582,6 +582,15 @@
         </xsl:element>
     </xsl:template>
 
+    <xsl:template match="dc_creators/Geïnterviewde">
+        <xsl:element name="dcterms:creator">
+            <xsl:attribute name="schema:roleName">
+                <xsl:text>geïnterviewde</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="text()" />
+        </xsl:element>
+    </xsl:template>
+
     <!-- Description -->
     <xsl:template match="dc_description">
         <xsl:element name="dcterms:description">
