@@ -87,7 +87,7 @@ def test_guess_mimetype_other():
         ("video/x-ms-wmv", "Video - File-based and Physical Media"),
         ("video/x-dv", "Video - File-based and Physical Media"),
         ("image/png", "Other Graphic Images - Digital"),
-        ("audio/mp4", "Video - File-based and Physical Media"),
+        ("audio/mp4", "Audio - Media-independent (digital)"),
         ("video/dvd", "Video - File-based and Physical Media"),
         ("audio/aiff", "Audio - Media-independent (digital)"),
         ("audio/x-ms-wma", "Audio - Media-independent (digital)"),

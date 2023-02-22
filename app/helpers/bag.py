@@ -106,7 +106,7 @@ MIMETYPE_TYPE_MAP = {
     "application/zip": COLLECTION,
     "audio/ac3": AUDIO_MEDIA_INDEPENDENT,
     "audio/aiff": AUDIO_MEDIA_INDEPENDENT,
-    "audio/mp4": VIDEO_FILE_BASED,
+    "audio/mp4": AUDIO_MEDIA_INDEPENDENT,
     "audio/mpeg": AUDIO_MEDIA_INDEPENDENT,
     "audio/ogg": AUDIO_MEDIA_INDEPENDENT,
     "audio/x-ms-wma": AUDIO_MEDIA_INDEPENDENT,
