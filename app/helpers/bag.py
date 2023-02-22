@@ -69,7 +69,7 @@ EXTENSION_MIMETYPE_MAP = {
     ".mxf": "application/mxf",
     ".ogg": "audio/ogg",
     ".pdf": "application/pdf",
-    ".psb": "application/vnd.adobe.photoshop",
+    ".psb": "image/vnd.adobe.photoshop",
     ".srt": "text/plain",
     ".tif": "image/tiff",
     ".tiff": "image/tiff",
@@ -77,12 +77,25 @@ EXTENSION_MIMETYPE_MAP = {
     ".wav": "audio/x-wav",
     ".xml": "application/xml",
     ".zip": "application/zip",
+    ".dng": "image/x-adobe-dng",
+    ".flv": "video/x-flv",
+    ".wmv": "video/x-ms-wmv",
+    ".dv": "video/x-dv",
+    ".f4v": "video/mp4",
+    ".png": "image/png",
+    ".m4a": "audio/mp4",
+    ".vob": "video/dvd",
+    ".m2v": "video/mpeg",
+    ".aif": "audio/aiff",
+    ".wma": "audio/x-ms-wma",
+    ".ac3": "audio/ac3",
+    ".psd": "image/vnd.adobe.photoshop",
 }
 
 MIMETYPE_TYPE_MAP = {
     "application/mxf": "Video - File-based and Physical Media",
     "application/pdf": "Textual works - Digital",
-    "application/vnd.adobe.photoshop": "Photographs - Digital",
+    "image/vnd.adobe.photoshop": "Photographs - Digital",
     "application/zip": "Collection",
     "audio/mpeg": "Audio - Media-independent (digital)",
     "audio/ogg": "Audio - Media-independent (digital)",
@@ -96,6 +109,16 @@ MIMETYPE_TYPE_MAP = {
     "video/quicktime": "Video - File-based and Physical Media",
     "video/x-matroska": "Video - File-based and Physical Media",
     "video/x-msvideo": "Video - File-based and Physical Media",
+    "image/x-adobe-dng": "Photographs - Digital",
+    "video/x-flv": "Video - File-based and Physical Media",
+    "video/x-ms-wmv": "Video - File-based and Physical Media",
+    "video/x-dv": "Video - File-based and Physical Media",
+    "image/png": "Other Graphic Images - Digital",
+    "audio/mp4": "Video - File-based and Physical Media",
+    "video/dvd": "Video - File-based and Physical Media",
+    "audio/aiff": "Audio - Media-independent (digital)",
+    "audio/x-ms-wma": "Audio - Media-independent (digital)",
+    "audio/ac3": "Audio - Media-independent (digital)",
 }
 
 
@@ -436,7 +459,6 @@ class Bag:
 
         # XDCAM
         if self.sidecar.is_xdcam():
-
             # UUIDs
             player_agent_uuid = generate_uuid()
             premis_object_rep_uuid = generate_uuid()
