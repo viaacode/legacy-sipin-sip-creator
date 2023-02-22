@@ -58,7 +58,7 @@ PHOTOGRAPHS_DIGITAL = "Photographs - Digital"
 TEXTUAL_DIGITAL = "Textual works - Digital"
 VIDEO_FILE_BASED = "Video - File-based and Physical Media"
 
-# Hardoded mimetypes mapping to avoid non-deterministic results via the Python
+# Hardcoded mimetypes mapping to avoid non-deterministic results via the Python
 # mimetypes module which is based on the OS-specific `/etc/mime.types`.
 EXTENSION_MIMETYPE_MAP = {
     ".ac3": "audio/ac3",
