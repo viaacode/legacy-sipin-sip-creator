@@ -50,6 +50,14 @@ from app.helpers.premis import (
 from app.helpers.sidecar import Sidecar
 from app.services.org_api import OrgApiClient
 
+# Library of Congress Recommended Formats Statement
+AUDIO_MEDIA_INDEPENDENT = "Audio - Media-independent (digital)"
+COLLECTION = "Collection"
+OTHER_GRAPHIC_IMGS_DIGITAL = "Other Graphic Images - Digital"
+PHOTOGRAPHS_DIGITAL = "Photographs - Digital"
+TEXTUAL_DIGITAL = "Textual works - Digital"
+VIDEO_FILE_BASED = "Video - File-based and Physical Media"
+
 # Hardoded mimetypes mapping to avoid non-deterministic results via the Python
 # mimetypes module which is based on the OS-specific `/etc/mime.types`.
 EXTENSION_MIMETYPE_MAP = {
@@ -93,32 +101,32 @@ EXTENSION_MIMETYPE_MAP = {
 }
 
 MIMETYPE_TYPE_MAP = {
-    "application/mxf": "Video - File-based and Physical Media",
-    "application/pdf": "Textual works - Digital",
-    "application/zip": "Collection",
-    "audio/ac3": "Audio - Media-independent (digital)",
-    "audio/aiff": "Audio - Media-independent (digital)",
-    "audio/mp4": "Video - File-based and Physical Media",
-    "audio/mpeg": "Audio - Media-independent (digital)",
-    "audio/ogg": "Audio - Media-independent (digital)",
-    "audio/x-ms-wma": "Audio - Media-independent (digital)",
-    "audio/x-wav": "Audio - Media-independent (digital)",
-    "image/jp2": "Photographs - Digital",
-    "image/jpeg": "Photographs - Digital",
-    "image/png": "Other Graphic Images - Digital",
-    "image/tiff": "Photographs - Digital",
-    "image/vnd.adobe.photoshop": "Photographs - Digital",
-    "image/x-adobe-dng": "Photographs - Digital",
-    "video/dvd": "Video - File-based and Physical Media",
-    "video/MP2T": "Video - File-based and Physical Media",
-    "video/mp4": "Video - File-based and Physical Media",
-    "video/mpeg": "Video - File-based and Physical Media",
-    "video/quicktime": "Video - File-based and Physical Media",
-    "video/x-dv": "Video - File-based and Physical Media",
-    "video/x-flv": "Video - File-based and Physical Media",
-    "video/x-matroska": "Video - File-based and Physical Media",
-    "video/x-ms-wmv": "Video - File-based and Physical Media",
-    "video/x-msvideo": "Video - File-based and Physical Media",
+    "application/mxf": VIDEO_FILE_BASED,
+    "application/pdf": TEXTUAL_DIGITAL,
+    "application/zip": COLLECTION,
+    "audio/ac3": AUDIO_MEDIA_INDEPENDENT,
+    "audio/aiff": AUDIO_MEDIA_INDEPENDENT,
+    "audio/mp4": VIDEO_FILE_BASED,
+    "audio/mpeg": AUDIO_MEDIA_INDEPENDENT,
+    "audio/ogg": AUDIO_MEDIA_INDEPENDENT,
+    "audio/x-ms-wma": AUDIO_MEDIA_INDEPENDENT,
+    "audio/x-wav": AUDIO_MEDIA_INDEPENDENT,
+    "image/jp2": PHOTOGRAPHS_DIGITAL,
+    "image/jpeg": PHOTOGRAPHS_DIGITAL,
+    "image/png": OTHER_GRAPHIC_IMGS_DIGITAL,
+    "image/tiff": PHOTOGRAPHS_DIGITAL,
+    "image/vnd.adobe.photoshop": PHOTOGRAPHS_DIGITAL,
+    "image/x-adobe-dng": PHOTOGRAPHS_DIGITAL,
+    "video/dvd": VIDEO_FILE_BASED,
+    "video/MP2T": VIDEO_FILE_BASED,
+    "video/mp4": VIDEO_FILE_BASED,
+    "video/mpeg": VIDEO_FILE_BASED,
+    "video/quicktime": VIDEO_FILE_BASED,
+    "video/x-dv": VIDEO_FILE_BASED,
+    "video/x-flv": VIDEO_FILE_BASED,
+    "video/x-matroska": VIDEO_FILE_BASED,
+    "video/x-ms-wmv": VIDEO_FILE_BASED,
+    "video/x-msvideo": VIDEO_FILE_BASED,
 }
 
 
