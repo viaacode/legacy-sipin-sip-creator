@@ -87,7 +87,6 @@ EXTENSION_MIMETYPE_MAP = {
     ".pdf": "application/pdf",
     ".png": "image/png",
     ".psb": "image/vnd.adobe.photoshop",
-    ".psd": "image/vnd.adobe.photoshop",
     ".srt": "text/plain",
     ".tif": "image/tiff",
     ".tiff": "image/tiff",

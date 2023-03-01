@@ -46,7 +46,6 @@ from app.helpers.bag import guess_mimetype, calculate_sip_type
         (".aif", "audio/aiff"),
         (".wma", "audio/x-ms-wma"),
         (".ac3", "audio/ac3"),
-        (".psd", "image/vnd.adobe.photoshop"),
     ],
 )
 def test_guess_mimetype(extension, mimetype):
