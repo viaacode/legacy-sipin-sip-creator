@@ -993,6 +993,24 @@
         </xsl:element>
     </xsl:template>
 
+    <!-- Dimensions-->
+    <xsl:template match="dimensions">
+        <xsl:element name="schema:height">
+            <xsl:element name="schema:value">
+                <xsl:value-of select="normalize-space(substring-before(., 'x'))" />
+            </xsl:element>
+            <xsl:element name="schema:unitText">cm</xsl:element>
+            <xsl:element name="schema:unitCode">CMT</xsl:element>
+        </xsl:element>
+        <xsl:element name="schema:width">
+            <xsl:element name="schema:value">
+                <xsl:value-of select="normalize-space(substring-after(., 'x'))" />
+            </xsl:element>
+            <xsl:element name="schema:unitText">cm</xsl:element>
+            <xsl:element name="schema:unitCode">CMT</xsl:element>
+        </xsl:element>
+    </xsl:template>
+
     <xsl:template match="@*|node()">
         <xsl:apply-templates select="node()" />
     </xsl:template>
