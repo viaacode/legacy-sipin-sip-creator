@@ -1,10 +1,5 @@
 FROM python:3.10-slim
 
-# Install mime-support
-RUN apt-get update &&\
-    apt-get install --no-install-recommends -y mime-support &&\
-    rm -rf /var/lib/apt/lists/*
-
 # Make a new group and user so we don't run as root.
 ARG UID=2008
 ARG GID=2008
