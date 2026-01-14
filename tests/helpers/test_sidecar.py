@@ -21,6 +21,17 @@ def test_sidecar_no_md5():
     assert str(e.value) == "Missing mandatory key: 'md5'"
 
 
+def test_sidecar_md5_with_only_whitespace():
+    with pytest.raises(InvalidSidecarException) as e:
+        Sidecar(Path("tests", "resources", "sidecar", "sidecar_md5_with_only_whitespace.xml"))
+    assert str(e.value) == "Missing mandatory key: 'md5'"
+
+
+def test_sidecar_md5_with_surrounding_whitespace():
+    sidecar = Sidecar(Path("tests", "resources", "sidecar", "sidecar_md5_with_surrounding_whitespace.xml"))
+    assert sidecar.md5 == "7e0ef8c24fe343d98fbb93b6a7db6ccb"
+
+
 def test_sidecar_empty():
     with pytest.raises(InvalidSidecarException) as e:
         Sidecar(Path("tests", "resources", "sidecar", "sidecar_empty.xml"))

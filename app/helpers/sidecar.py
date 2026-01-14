@@ -2,8 +2,19 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
+from typing import Optional
 from lxml import etree
 from lxml.etree import XMLSyntaxError
+
+
+def optional_chain_strip(opt_str: Optional[str]) -> Optional[str]:
+    """
+    Strips unicode whitespace characters if parameter is not None. Else, returns None.
+    """ 
+    if opt_str is None:
+        return None
+    
+    return opt_str.strip()
 
 
 class InvalidSidecarException(Exception):
@@ -18,11 +29,15 @@ class Sidecar:
             self.root = etree.parse(str(path))
         except XMLSyntaxError as e:
             raise InvalidSidecarException(f"XML syntax error: '{e}'")
-        # Mandatory
-        self.md5 = self.root.findtext("md5")
-        if not self.md5:
-            raise InvalidSidecarException("Missing mandatory key: 'md5'")
 
+        # Mandatory
+        # We trim the md5 text (if not None) prior to the guard to ensure
+        # that a pure whitespace string will also count as a missing key.
+        md5 = optional_chain_strip(self.root.findtext("md5"))
+        if not md5:
+            raise InvalidSidecarException("Missing mandatory key: 'md5'")
+        self.md5 = md5
+        
         # Optional
         self.cp_id = self.root.findtext("CP_id")
         self.dc_source = self.root.findtext("dc_source")
